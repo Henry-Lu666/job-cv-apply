@@ -1,12 +1,17 @@
 # Gmail 求职邮件扫描工作流
 
+> **⚠️ 2026-06-22 更新**: 此文档描述的旧脚本 `gmail_job_scanner.py` 已被 `gmail_job_agent.py` 替代。
+> 新Agent详见 `references/gmail-monitoring-agent.md`。
+> 快捷命令: `gmail-job scan` / `gmail-job search 汇丰` / `gmail-job report`
+
 > 通过 Himalaya CLI 读取 Gmail 中的 LinkedIn/JobsDB 推荐邮件，自动提取岗位并匹配评分。
 
 ## 前置条件
 
 - Himalaya CLI 已安装 (`~/.local/bin/himalaya --version`)
 - Gmail 已配置 (`~/.config/himalaya/config.toml`，App Password 认证)
-- 扫描脚本: `~/.hermes/scripts/gmail_job_scanner.py`
+- **推荐脚本**: `~/.hermes/scripts/gmail_job_agent.py`（新Agent）
+- 旧脚本: `~/.hermes/scripts/gmail_job_scanner.py`（已废弃，保留不删）
 
 ## 邮件来源识别
 
@@ -43,6 +48,28 @@
 
 ## 执行命令
 
+### 新Agent（推荐）
+
+```bash
+# 扫描最近7天（默认）
+gmail-job scan
+
+# 扫描最近30天
+gmail-job scan 30
+
+# 搜索特定公司
+gmail-job search 汇丰
+gmail-job company HSBC
+
+# 生成进度报告
+gmail-job report
+
+# 查看求职进度表
+gmail-job tracker
+```
+
+### 旧脚本（已废弃，保留兼容）
+
 ```bash
 # 基本扫描（最近7天）
 python3 ~/.hermes/scripts/gmail_job_scanner.py --days 7 --output text
@@ -55,6 +82,21 @@ python3 ~/.hermes/scripts/gmail_job_scanner.py --days 7 --output json
 ```
 
 输出路径: `~/你的知识库路径/raw/notes/jobs/YYYY-MM-DD-email-jobs.md`
+
+## ⚠️ 脚本超时时的回退方案
+
+`gmail_job_scanner.py` 可能因网络/API问题超时(60s+)。此时用 himalaya CLI 直接搜索：
+
+```bash
+# 1. 列出最近邮件（JSON）
+~/.local/bin/himalaya envelope list --folder INBOX --page-size 100 --output json
+
+# 2. Python过滤求职相关邮件（见 references/himalaya-email-commands.md）
+# 3. 读取特定邮件: ~/.local/bin/himalaya message read <ID>
+```
+
+**关键**: 即使脚本超时，也不能跳过邮箱检查。himalaya直接读取是可靠的回退路径。
+详见 `references/himalaya-email-commands.md`。
 
 ## 评分逻辑
 

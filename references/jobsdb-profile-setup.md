@@ -15,7 +15,7 @@
 
 | # | Name | Organisation | Issue | Description |
 |---|------|-------------|-------|-------------|
-| 1 | Master of Science in Applied Artificial Intelligence | 某高校 | May 2026 | Thesis on RoBERTa dual-task ABSA model, F1 improved 0.21→0.67 |
+| 1 | Master of Science in Applied Artificial Intelligence | 某高校 | May 2026 | Thesis on dual-task NLP model with significant F1 improvement |
 | 2 | Bachelor of Engineering in Vehicle Engineering | 某211大学 | Jun 2013 | — |
 | 3 | Putonghua Proficiency Test — Level 2A | National Language Work Committee | <用户填写考试年份> | — |
 | 4 | Intermediate Engineer (中級工程師) | Ministry of Human Resources and Social Security, PRC | <用户填写评定年份> | Professional title certification in Engineering |
@@ -31,7 +31,7 @@ Operations Management, Business Development, Team Leadership, Digital Transforma
 Key Account Management, Sales Strategy, SOP Design, P&L Management, Customer Experience, Marketing Strategy, Stakeholder Management
 
 **第三梯队（技术加分）：**
-Python, Deep Learning, RoBERTa / Transformer Models, Sentiment Analysis, Data Pipeline, SQL
+Python, Deep Learning, Transformer Models, Sentiment Analysis, Data Pipeline, SQL
 
 ## Languages
 

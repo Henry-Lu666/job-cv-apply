@@ -1,17 +1,19 @@
 # Gmail Job Scanner — Technical Reference
 
-## Architecture (2026-06-10 升级为5步)
+## Architecture (2026-06-18 更新 — 6平台覆盖)
 
 ```
 Gmail (IMAP) → himalaya CLI → gmail_job_scanner.py → structured report
          ↓                                        → desktop report (~/job-search/inbox/)
   LinkedIn / JobsDB /                              → archive (raw/notes/jobs/)
   OfferToday / Indeed /
-  Glassdoor 邮件解析
+  Glassdoor / CTgoodjobs 邮件解析
          +
   JobsDB API 关键词搜索
   (8组方向关键词 × 15条)
 ```
+
+Scanner覆盖6个邮件源 + 1个API源。详见 `references/gmail-job-scanner.md` 邮件发送者速查表。
 
 ## Himalaya Setup
 
@@ -88,9 +90,9 @@ Must skip in parser: "简单几步，轻松迈向成功", "编辑订阅", "其�
 Must skip: "Rate your recent employer", "apple store", "google play", "Edit frequency", "View more jobs", "[https://", lines starting with `* ` (requirement bullets, not company names)
 
 ### P6: Hong Kong district names as company
-"九龙城区", "中西區", "湾仔区" etc. get misidentified as company names. Post-fix in score_job():
+"九龙城区", "中西區", "某区" etc. get misidentified as company names. Post-fix in score_job():
 ```python
-location_names = ["九龙城区", "中西區", "湾仔区", ...]
+location_names = ["九龙城区", "中西區", "某区", ...]
 if job.get("company", "") in location_names:
     job["location"] = job["company"]
     job["company"] = ""
@@ -128,10 +130,25 @@ Switching folders invalidates previously listed IDs. Always re-list after folder
 - Subject: 含"推荐"或"recommend"或"match"
 - Body: `viewjob` 链接
 
-### Glassdoor — 2026-06-10 新增
-- Sender: `noreply@glassdoor.com` 或 `info@glassdoor.com`
-- Subject: 含"推荐"/"recommend"/"alert"
-- Body: `glassdoor.*job` 链接
+### Glassdoor — 2026-06-18 修复重写
+- Sender: `noreply@glassdoor.com`
+- **Subject patterns**（旧版只认"推荐/recommend/alert"，全部漏掉）：
+  - "X is hiring for Y. Apply Now." — 单岗位
+  - "Y at X and N more jobs in Hong Kong for you. Apply Now." — 多岗位digest
+  - "Machine Learning Engineer at Maxipro (Asia) and 3 more jobs..."
+- **Body format (digest)**：每封邮件含5-13个岗位，格式为：
+  ```
+  {category}                    {company} {rating★}
+  {job_title}                   ← 全小写
+  {location}                    ← e.g. "hong kong", "remote"
+  {time_posted} ({URL})         ← e.g. "1d (https://glassdoor.com.hk/partner/jobListing.htm?...)"
+  ```
+- **URL pattern**：`https://www.glassdoor.com.hk/partner/jobListing.htm?...&jobListingId=XXXXX`
+- **Noise过滤**（必须跳过）：
+  - 主题含 "how is your" / "search going" / "unlimited access" / "we want to know" / "secret to landing" / "one-stop shop" / "expert on" / "terminated" / "got easier"
+  - Body中的invisible Unicode characters（U+200B-ZWS, U+200C-ZWNJ, U+200D-ZWJ, U+200E-LRM, U+200F-RLM, U+FEFF-BOM等）会污染company名，必须strip
+- **解析函数**：`parse_glassdoor_digest(body, subject)` — 从URL位置向前回溯提取location→title→company
+- **已知限制**：company名常被Unicode零宽字符覆盖导致为空，需从URL或title推断
 
 ## JobsDB API Keyword Search (Step 4)
 
@@ -191,5 +208,26 @@ cat /tmp/scan_stderr.txt  # 查看扫描进度和统计
 | offertoday.com / zhipin | OfferToday | ✅ Step 3 |
 | donotreply@match.indeed.com | Indeed | ✅ Step 3 |
 | noreply@glassdoor.com / info@glassdoor.com | Glassdoor | ✅ Step 3 |
+| noreply@mail3.ctgoodjobsnews.hk | CTgoodjobs 资讯 | ⚠️ 需过滤（多为营销/资讯） |
+| no-reply@ctgoodjobscs.hk | CTgoodjobs 系统 | ❌ 跳过（profile提醒/welcome） |
+
+### P8: CTgoodjobs emails are mostly newsletters (2026-06-18)
+CTgoodjobs的邮件主要是营销资讯（定存排行、政府工资讯等），不是个性化职位推荐。即使scanner加了`from "ctgoodjobs"`搜索，也需subject过滤跳过非job邮件。用户需要在ctgoodjobs.hk网站上**主动订阅job alert**才能收到真正的职位推荐邮件。
+
+过滤规则：subject含"定存/排行榜/兼職/月入/打工仔/歡迎/Welcome/檔案尚未完成"或emoji（📢💰⚽😎😍🏆）→ 跳过。
+
+### P9: Scanner timeout when adding email sources (2026-06-18)
+添加新邮件源（如Glassdoor 20封）后，逐封读取body可能导致scanner超时（>120s）。解决方案：
+- `read_email()` 加 `timeout=10` 参数（默认30s太长）
+- 新增源的`page_size`控制在10-20以内
+- 如果仍超时，用 `--days 2` 缩小扫描窗口
+
+### P10: Glassdoor digest Unicode pollution (2026-06-18)
+Glassdoor digest邮件中company名被invisible Unicode characters（ZWS/ZWNJ/ZWJ/LRM/RLM/BOM等）污染，strip后为空。解决：
+```python
+text = re.sub(r'[\u200b-\u200f\u202a-\u202e\ufeff\u2060-\u2064\u2066-\u2069]', '', text).strip()
+```
+如果clean后仍为空，说明company名在HTML中是图片/logo而非文本，只能从URL或title推断。
+
 | noreply@research.jobsdb.com | JobsDB 调研 | ❌ 跳过（非岗位推荐） |
 | noreply@mail.apply.careers.hsbc.com | HSBC 投递确认 | ❌ 跳过（非推荐） |

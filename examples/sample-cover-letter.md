@@ -17,7 +17,7 @@
 - **扭亏为盈**：接管动荡期亏损门店，13→7人精简实现零纠纷过渡，第3个月扭亏为盈
 - **跨区域扩张**：成功复制"某成功案例"至5个城市，奠定全国扩张基础
 
-AI硕士项目（某高校）期间，我开发了基于RoBERTa的双任务分析系统，F1从0.21提升至0.67，验证了AI在业务场景的落地可行性。
+AI硕士项目（某高校）期间，我开发了基于预训练模型的双任务分析系统，F1大幅提升，验证了AI在业务场景的落地可行性。
 
 期待与您进一步交流。
 
@@ -40,7 +40,7 @@ Throughout my career at a major automotive manufacturer, I have developed core c
 - **Turnaround Leadership**: Took over a loss-making store, streamlined from 13 to 7 staff with zero disputes, achieving profitability by month 3
 - **Regional Expansion**: Successfully replicated a proven model to 5 cities, laying the foundation for nationwide scaling
 
-During my MSc in Applied AI at a Hong Kong university, I developed a dual-task analysis system based on RoBERTa, improving F1 from 0.21 to 0.67, demonstrating the feasibility of AI implementation in business scenarios.
+During my MSc in Applied AI at a Hong Kong university, I developed a dual-task analysis system, significantly improving F1, demonstrating the feasibility of AI implementation in business scenarios.
 
 I look forward to discussing how my experience can contribute to Example Tech's goals.
 

@@ -4,7 +4,7 @@
 
 | 字段 | 英文填写 | 中文说明 |
 |------|---------|---------|
-| Earliest start date | `Immediately` | IANG有效，随时入职 |
+| Earliest start date | `Immediately` | 有效工作签证，随时入职 |
 | Expected compensation (USD) | `$40,000 - $50,000 / year` | ≈HKD 26K-33K/月，远程初创合理价位 |
 | Expected compensation (HKD) | `HKD XXX,XXX / year` | 根据实际情况填写 |
 | University & study | `某211大学 — BEng Vehicle Engineering; 某高校 — MSc Applied Artificial Intelligence (2026)` | 某211大学+某高校 |

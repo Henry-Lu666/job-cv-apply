@@ -252,7 +252,7 @@ MIT License — 见 [LICENSE](LICENSE)
 
 ## 作者
 
-Hong Zhangxiu (海泽)
+海泽 (Henry)
 - GitHub: [Henry-Lu666](https://github.com/Henry-Lu666)
 - LinkedIn: [your-linkedin-id](https://www.linkedin.com/in/your-linkedin-id-your-linkedin-id)
 
@@ -267,3 +267,30 @@ Hong Zhangxiu (海泽)
 - 匹配度评估基于作者个人经验校准，你的实际情况可能不同
 - 使用前请根据自己的背景调整甜蜜区定位和匹配度阈值
 - 作者不对因使用本 Skill 导致的任何损失负责
+
+## v2.0 新增：质量管控体系
+
+### 质量门（Quality Gates）
+四级验收标准，每阶段必须通过才能进入下一阶段：
+- **L1 扫描合规**：渠道覆盖、结果标注、追踪表查重
+- **L2 JD核实质量**：完整JD抓取、9维度评估（核心三维+综合分）
+- **L3 简历交付质量**：ATS关键词合规、双语同步、标准描述引用
+- **L4 流程完整性**：双文件同步、状态真实性、P1续挖
+
+### 结构化对话（Structured Conversation）
+- "走一遍"模式：直接执行（甜蜜区定位表已定义）
+- 简历定制：必须确认JD/侧重/Cover Letter
+- 面试准备：必须确认轮次/形式/面试官/时间
+- 薪资谈判：必须确认阶段/竞争offer/底线
+
+### 输出约束（Output Constraints）
+- 简历定制：5项必含 + 4项禁止
+- 匹配评估：标准格式（核心三维+综合分+JD引用）
+- 投递追踪：双文件同步 + 状态真实性
+
+### 输出管线（Output Pipeline）
+```
+Stage 1 扫描(L1) → Stage 2 核实(L2) → Stage 3 定制(L3)
+→ Stage 4 追踪(L4) → Stage 5 汇总交付
+```
+"走一遍"模式：全自主执行，只在Stage 5一次性汇报。

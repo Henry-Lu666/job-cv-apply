@@ -88,7 +88,7 @@ curl -s "https://hk.jobsdb.com/api/jobsearch/v5/search?siteKey=HK-Main&sourcesys
 - 华润集团: 567 反爬
 - 中国海外: 403 Cloudflare
 - 字节跳动: 超时
-- 中银/工银/人寿: 404 URL已变
+- 某银行/工银/人寿: 404 URL已变
 
 ---
 

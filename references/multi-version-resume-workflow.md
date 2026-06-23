@@ -146,7 +146,7 @@ def generate_resume(version_key, target_cn, target_en, summary_old_cn, summary_n
 - `doc.add_paragraph()` — 改变段落结构
 - 修改 `run.font.name / size / color` — 破坏样式
 - 修改 `paragraph_format` — 破坏间距
-- 操作 XML 元素 — 破坏 schema 顺序
+- ~~操作 XML 元素~~ → 改用 docx skill unpack→edit→pack 流程（安全，见 `references/deep-resume-xml-editing.md`）
 - 直接修改原始 V3 文件 — 不可逆
 
 ## 替换粒度建议

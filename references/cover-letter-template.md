@@ -13,7 +13,7 @@
 | 销售管道搭建 | 20+线索企业，从0到1 SOP | BD/Pipeline/GTM |
 | 单城月销记录 | 6,000台，≈RMB 2.4亿GMV | Revenue/P&L |
 | 培训体系0→1 | 慕课平台+内训师+4次大型培训 | Enablement/Training/Rollout |
-| AI项目 | RoBERTa双任务F1 0.21→0.67(3.2×) | AI/Tech/Differentiation |
+| AI项目 | 预训练模型双任务，F1大幅提升 | AI/Tech/Differentiation |
 | C-suite汇报 | 行业级+集团级分享报告 | Executive Communication |
 | 政企合作 | 高新区文旅局战略合作 | Government/Partnership |
 
@@ -75,7 +75,7 @@ Portfolio: your-portfolio.com
 关键亮点：
 - 4个bullet分别映射：B2B销售、P&L管理、团队搭建、STEM背景
 - 提到智能机器人项目的IoT属性（对口涂鸦的IoT平台业务）
-- 明确写出IANG签证状态和出差意愿
+- 明确写出工作签证状态和出差意愿
 
 ---
 
@@ -130,7 +130,7 @@ your.email@example.com
 - 用【】做段落小标题，结构清晰
 - 突出内地工作经验（12年内地+苏州建店+政企合作）
 - 没提AI/技术（传统贸易公司不需要，提了反而减分）
-- IANG签证一笔带过（不像英文版那样单独段落强调）
+- 工作签证一笔带过（不像英文版那样单独段落强调）
 
 ---
 

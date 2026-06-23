@@ -81,7 +81,7 @@ Core differentiator: not "business-savvy + AI tool user", but "business-native +
 
 | 顺序 | 项目 | 理由 |
 |------|------|------|
-| 1 | MSc Thesis: ABSA | 学术硬通货 + AI 差异化 |
+| 1 | MSc Thesis: NLP for Business Analysis | 学术硬通货 + AI 差异化 |
 | 2 | 佛山直营店扭亏 | 量化数据最硬（62台/117%/85%） |
 | 3 | 全国直营体系扩张 | 650人规模化，管理深度 |
 | 4 | 移动机器人 ToB | BD 能力佐证 |
