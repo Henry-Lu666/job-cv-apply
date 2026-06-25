@@ -77,25 +77,37 @@ Next Job Title
 - Any line that looks like email metadata (Subject:, To:, From:)
 - HTML tags: <strong>, <a href=...>
 
-## Glassdoor Job Alerts (noreply@glassdoor.com) — 2026-06-12
+## Glassdoor Job Alerts (noreply@glassdoor.com) — 2026-06-12, updated 2026-06-24
 
 Subject: "{Job Title} at {Company} and N more jobs in Hong Kong for you. Apply Now."
 Body: HTML with zero-width joiner characters (‌​‍‎‏﻿) as anti-scraping noise.
 
-Structure per email:
+**⚠️ 关键发现（2026-06-24实测）**：himalaya渲染后的文本结构中，**公司名在URL行闭括号之后，且是下一个job的公司名，不是当前job的**。
+
+himalaya渲染后的实际文本结构：
 ```
-Job alert: {Keyword}
-Your job listings for {Date}
----
-{Company Name} {Rating} ★
-{Job Title}
-{Location}
-{Salary (optional, e.g. "hk$70k - hk$100k (employer est.)")}
-{Posted time, e.g. "1d", "6d"}
-{Glassdoor partner link with jobListingId}
----
-(repeat for 5-8 jobs per email)
+[header: Job alert: {Keyword}Your job listings for {Date}{First Company} {Rating} ★]
+{Job Title 1}
+{Location 1}
+{Nd} (https://glassdoor.com...jobListingId={ID1})  {Company 2} {Rating} ★   ← Company 2是下一job的公司
+{Job Title 2}
+{Location 2 or "easy apply"}
+{Nd} (https://glassdoor.com...jobListingId={ID2})  {Company 3} {Rating} ★
+...
+{Job Title N}
+{Location N}
+{Nd} (https://glassdoor.com...jobListingId={IDN})  see more jobs (...)
 ```
+
+**解析算法**：
+1. Pass 1: 找所有 `Nd (URL...jobListingId=XXX) company rating ★` 行
+2. Pass 2: 对于URL行N，**公司名**来自URL行N-1的after-paren（第一个job从header提取）
+3. **Job title**在URL行前2行，**Location**在URL行前1行
+4. 跳过"easy apply"等badge行
+5. `re.search(r'(\d+)d\s*\((https://[^)]*jobListingId=(\d+)[^)]*)\)\s*(.*)', line)` 提取URL和after_paren
+6. 公司名 = `re.sub(r'\d+\.?\d*\s*★?\s*$', '', after_paren).strip()`
+
+**⚠️ _read_email_body pitfall**：`himalaya message read`返回的HTML被清理后，如果用`" ".join(lines)`会把所有行合并成一行，破坏解析结构。必须用`"\n".join(lines)`保留换行。同时需过滤零宽字符行：`re.match(r'^[\s\u200b-\u200f\ufeff\u2060\u00ad]+$', clean)`。
 
 **Key fields to extract**:
 - `jobListingId` (in URL param): unique ID for dedup across days
@@ -114,3 +126,58 @@ Your job listings for {Date}
 **Dedup**: Same `jobListingId` appears in consecutive days' emails. Dedup on jobListingId.
 
 **JD fetching**: Glassdoor links are Cloudflare-blocked. Use company career sites or LinkedIn as fallback. See `glassdoor-hk-guide.md`.
+
+## LinkedIn 职位订阅正文提取（2026-06-24新增）
+
+LinkedIn推荐邮件正文结构（himalaya渲染后）：
+```
+[header: 职位订阅: {keyword} - {location}   N个新职位符合您的偏好]
+---
+{Job Title}
+{Company}
+{Location}
+查看职位: https://www.linkedin.com/comm/jobs/view/{JOB_ID}
+---
+{Next Job Title}
+...
+```
+
+**解析算法**：用 `re.split(r'-{10,}', body)` 按分隔线分割，每块提取：
+1. 找URL: `re.search(r'(https://www\.linkedin\.com/comm/jobs/view/\d+)', block)`
+2. 提取job_id: `re.search(r'jobs/view/(\d+)', url)`
+3. 逐行跳过无关行（"查看职位"/"该公司正在热招"/"使用简历"/http开头），第一个有效行=title，第二个=company，第三个=location
+
+## Indeed 邮件提取
+
+URL模式: `https://hk.indeed.com/viewjob?jk={hex_id}`
+Job title和company在URL前3行中逆序提取。
+
+## JobsDB 邮件提取
+
+URL模式: `https://hk.jobsdb.com/job/{numeric_id}`
+提取逻辑同Indeed。
+
+## 猎头分类修复（2026-06-24）
+
+**问题**：`RECRUITER_KEYWORDS`含"招聘""人才""recruitment"等宽泛词，LinkedIn推荐邮件正文（如"招聘专员消息可提升2倍"）触发误标。
+
+**修复**：
+1. 关键词收紧：去掉宽泛词，改为精准猎头信号：
+   - "看了你的简历"/"看了你的资料"/"reviewed your profile"
+   - "your profile caught"/"your background"
+   - "想和你聊聊"/"would like to discuss"/"would like to connect"
+   - "有合适的机会"/"suitable opportunity"
+   - "猎头"/"headhunter"/"executive search"/"staffing"
+2. 平台排除：`_classify_email`和`_classify_email_with_body`新增`from_addr`参数。已知平台域名列表`JOB_PLATFORM_DOMAINS_FOR_CLASSIFY`（linkedin.com/jobsdb.com/glassdoor.com/ctgoodjobsnews.hk/ctgoodjobs.hk/indeed.com/领英/jobs-listings@）的邮件永远不标猎头。
+
+## 聚合推荐邮件识别
+
+**判断方法**：`_is_recommendation_email(subject)` 检查subject是否包含：
+- `and \d+ more jobs` / `\d+ new jobs` / `\d+ more jobs`
+- `\d+ 个新职位` / `\d+ 个新工作`
+- `job alert` / `职位订阅` / `recommendations`
+
+**处理流程**：
+1. 读取邮件正文（`_read_email_body`，保留换行）
+2. 根据from_addr分发到对应平台解析器
+3. 每个提取的岗位创建独立tracker记录（ID格式：`{email_id}_job_{job_id}`）

@@ -7,30 +7,35 @@
 
 ## 渠道分层
 
-### 第一层：已自动化（cron / API）
+### 第零层：CDP 全接管（Chrome 已登录，browser 工具直接操作）
+
+> 2026-06-25 全量验证。Chrome 以 `--remote-debugging-port=9222` 启动，Hermes browser 工具通过 CDP 接管。所有平台均已登录，agent 可直接搜/抓 JD/辅助投递。
+> 详细 CDP 配置见 `references/chrome-cdp-setup.md`。
+
+| 渠道 | 登录身份 | 可自动化操作 |
+|------|---------|-------------|
+| **LinkedIn** | [YOUR_NAME] | 搜岗位、抓 JD、浏览 Feed、辅助投递 |
+| **JobsDB** | [YOUR_NAME] | Dashboard 推荐、搜岗位、抓 JD |
+| **Glassdoor** | AI Engineer（Indeed 共享登录） | 查评价、搜岗位 |
+| **猎聘** | 已登录（首页） | 搜岗位、看推荐 |
+| **CTgoodJobs** | Henry | 搜岗位、AI 推荐、抓 JD |
+| **Indeed** | Hongzhang | 搜岗位、个性化推荐、轻鬆申請 |
+| **劳工处** | 用户自行登录（搜索免费） | 搜"管理/行政"类别、按中文关键字 |
+
+### 第一层：已自动化（cron / API，不需要浏览器）
 
 | 渠道 | 方法 | 频率 | 备注 |
 |------|------|------|------|
-| Gmail扫描 | gmail_job_scanner.py | 每日10:00 cron | LinkedIn+JobsDB邮件推送 |
+| Gmail扫描 | Gmail MCP + cron | 每日10:00 | LinkedIn+JobsDB+Glassdoor邮件推送 |
 | JobsDB搜索API | curl JSON | 按需 | keywords参数，pagesize小写 |
 
-### 第二层：半自动（用户操作 + agent分析）
-
-| 渠道 | 用户操作 | agent角色 | 频率建议 |
-|------|---------|----------|---------|
-| **简职HK（公众号）** | 看推送→截图/转发 | 匹配分析 | 每日 |
-| **劳工处** www2.jobs.gov.hk | browser搜"管理/行政"类别 | 匹配分析 | 每周2-3次 |
-| **CTgoodjobs** ctgoodjobs.hk | browser搜关键词 | 匹配分析+JD核实 | 每周2-3次 |
-| **猎聘** liepin.com | 登录看推荐 | 匹配分析 | 每周 |
-| **Jijis** jijis.org | 注册+搜索 | 匹配分析 | 每周 |
-
-### 第三层：手动（需用户自行操作）
+### 第二层：手动/封闭（需用户操作）
 
 | 渠道 | 说明 |
 |------|------|
-| 中资/央企官网 | SPA网站，需逐个browser打开 |
+| 简职HK（微信公众号） | 纯微信封闭，用户转发截图给 agent 分析 |
+| 中资/央企官网 | SPA网站，需逐个 browser 打开 |
 | 行业WhatsApp/微信群 | 内推/急招，agent无法访问 |
-| Glassdoor | 投递前查双休/加班评价 |
 | 微信公众号（其他） | 各行业招聘号 |
 
 ---
@@ -105,6 +110,23 @@
 
 ---
 
+## 书签栏「找工作」文件夹（Chrome 书签）
+
+> 2026-06-25 同步。CDP 接管后可直接 browser_navigate 访问。
+
+| # | 平台 | URL | Skill 层 | CDP 登录态 | 登录身份 | 备注 |
+|---|------|-----|---------|-----------|---------|------|
+| 1 | LinkedIn | linkedin.com | 第零层 | ✅ 已登录 | [YOUR_NAME] | 主力渠道 |
+| 2 | JobsDB | jobsdb.com | 第零层 | ✅ 已登录 | [YOUR_NAME] | 主力渠道 |
+| 3 | Glassdoor | glassdoor.com.hk | 第零层 | ✅ 已登录 | Indeed 共享 | 查评价 |
+| 4 | 獵聘 | liepin.com | 第零层 | ✅ 已登录 | — | 内地+香港 |
+| 5 | CTgoodJobs | ctgoodjobs.hk | 第零层 | ✅ 已登录 | Henry | 需注册 |
+| 6 | Indeed | hk.indeed.com | 第零层 | ✅ 已登录 | Hongzhang | 新增 |
+| 7 | 勞工處 | www2.jobs.gov.hk | 第零层 | 用户自行登录 | [USERNAME] | 搜索免费 |
+| 8 | 简职HK | 微信公众号 | 第二层 | N/A | — | 用户手动 |
+
+---
+
 ## 信息差核心原则
 
 | 大众平台 | 小众/内部渠道 |
@@ -126,3 +148,6 @@
 4. **中资官网全是SPA** — curl拿不到数据，需逐个browser交互
 5. **不要只搜科技企业** — 中资传统行业（基建/贸易/物流）的管理岗更匹配"双休+对内地人友好"
 6. **JobsDB API不识别中文公司名** — 搜中资必须用英文名（如"Orient Overseas"而非"东方海外"）
+7. **Indeed 与 Glassdoor 共享登录** — Indeed 收购了 Glassdoor，登录一个即可访问另一个（2026-06-25 验证）
+8. **CDP 接管后所有平台共享 Chrome 登录态** — 只要在 CDP 控制的 Chrome 中登录一次，browser_navigate 直接打开就是登录状态。Indeed+Glassdoor 共享登录（Indeed 收购了 Glassdoor），登一个顶两个。详见 `references/chrome-cdp-setup.md`。
+9. **🔴 不要替用户登录含敏感凭据的平台（2026-06-25教训）** — 用户分享的账号密码仅供用户自己登录使用，agent 不应主动在 browser 工具中输入密码。密码不存入 memory/skill/文件。用户原话："不要帮我登录，我自己登录就好"。
